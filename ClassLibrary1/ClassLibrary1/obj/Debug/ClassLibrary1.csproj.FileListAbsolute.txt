@@ -1,0 +1,15 @@
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\OTAPI.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\TerrariaServer.exe
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\TShockAPI.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\HttpServer.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\MySql.Data.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\BCrypt.Net.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\bin\Debug\Mono.Data.Sqlite.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CoreCompileInputs.cache
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CopyComplete
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+C:\Users\Admin-ZM\source\repos\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csprojAssemblyReference.cache
