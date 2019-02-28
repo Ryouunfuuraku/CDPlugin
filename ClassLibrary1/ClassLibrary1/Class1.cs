@@ -15,11 +15,17 @@ namespace CDPlugin
         public override string Description => "Drop item when player die.";
         public override string Name => "CD";
         public override Version Version => new Version(1, 0, 0, 0);
+        // 物品栏掉落的物品不销毁的概率
         private const int InventoryDDR = 50;
+        // 物品栏掉落物品的概率
         private const int InventoryDR = 50;
+        // 装备栏掉落的物品不销毁的概率
         private const int ArmDDR = 80;
+        // 装备栏掉落物品的概率
         private const int ArmDR = 20;
+        // 扩展栏掉落的物品不销毁的概率
         private const int MEDDR = 50;
+        // 扩展栏掉落物品的概率
         private const int MEDR = 33;
 
         public CDPlugin(Main game) : base(game)
