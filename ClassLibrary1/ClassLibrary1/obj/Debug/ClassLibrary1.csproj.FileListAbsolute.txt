@@ -34,3 +34,4 @@ E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.Co
 E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CopyComplete
 E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.dll
 E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csprojAssemblyReference.cache

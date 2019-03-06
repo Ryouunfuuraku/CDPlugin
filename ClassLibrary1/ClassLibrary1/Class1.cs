@@ -91,13 +91,13 @@ namespace CDPlugin
             }
             if (args.MsgID == PacketTypes.PlayerUpdate)
             {
-                if (!TShock.ServerSideCharacterConfig.Enabled)
-                {
-                    return;
-                }
                 var playerId = args.Msg.whoAmI;
                 var tPlayer = TShock.Players[playerId];
                 var p = Main.player[playerId];
+                if (!TShock.ServerSideCharacterConfig.Enabled && tPlayer.User == null)
+                {
+                    return;
+                }
                 var ppos = DB.GetPos(tPlayer.User.ID);
                 if (ppos.indatabase)
                 {
