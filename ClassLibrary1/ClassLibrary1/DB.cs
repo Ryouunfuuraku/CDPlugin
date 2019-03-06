@@ -36,7 +36,10 @@ namespace CDPlugin
                 UpdateStatus(true, _userid);
             }
             else
+            {
                 AddPos(new PlayerPos(_userid, 0, 0));
+            }
+                
         }
         public static void Logout(int _userid, float _x, float _y)
         {
@@ -84,9 +87,16 @@ namespace CDPlugin
             PlayerPos retPos = new PlayerPos(_userid, 0, 0);
             List<SqlValue> where = new List<SqlValue>();
             where.Add(new SqlValue("userid", _userid));
-            retPos.x = Convert.ToSingle (SQLEditor.ReadColumn("CDPlugin", "x", where)[0].ToString());
-            retPos.y = Convert.ToSingle (SQLEditor.ReadColumn("CDPlugin", "y", where)[0].ToString());
-            retPos.indatabase = Convert.ToBoolean( SQLEditor.ReadColumn("CDPlugin", "logout", where)[0]);
+            try
+            {
+                retPos.x = Convert.ToSingle(SQLEditor.ReadColumn("CDPlugin", "x", where)[0].ToString());
+                retPos.y = Convert.ToSingle(SQLEditor.ReadColumn("CDPlugin", "y", where)[0].ToString());
+                retPos.indatabase = Convert.ToBoolean(SQLEditor.ReadColumn("CDPlugin", "logout", where)[0]);
+            }
+            catch(ArgumentOutOfRangeException)
+            {
+                AddPos(retPos);
+            }
             return retPos;
         }
     }

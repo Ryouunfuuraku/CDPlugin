@@ -91,6 +91,10 @@ namespace CDPlugin
             }
             if (args.MsgID == PacketTypes.PlayerUpdate)
             {
+                if (!TShock.ServerSideCharacterConfig.Enabled)
+                {
+                    return;
+                }
                 var playerId = args.Msg.whoAmI;
                 var tPlayer = TShock.Players[playerId];
                 var p = Main.player[playerId];
