@@ -15,15 +15,15 @@ namespace CDPlugin
         public override string Name => "CD";
         public override Version Version => new Version(1, 0, 0, 0);
         // 物品栏掉落的物品不销毁的概率
-        private const int InventoryDDR = 60;
+        private const int InventoryDDR = 99;
         // 物品栏掉落物品的概率
-        private const int InventoryDR = 5;
+        private const int InventoryDR = 20;
         // 装备栏掉落的物品不销毁的概率
-        private const int ArmDDR = 95;
+        private const int ArmDDR = 99;
         // 装备栏掉落物品的概率
         private const int ArmDR = 5;
         // 扩展栏掉落的物品不销毁的概率
-        private const int MEDDR = 95;
+        private const int MEDDR = 99;
         // 扩展栏掉落物品的概率
         private const int MEDR = 33;
         public static TSPlayer[] Players = new TSPlayer[Main.maxPlayers];
@@ -35,7 +35,7 @@ namespace CDPlugin
         {
             ServerApi.Hooks.NetGetData.Register(this, NetHooks_GetData);
             ServerApi.Hooks.GameInitialize.Register(this, OnInit);
-            PlayerHooks.PlayerPreLogin += OnLogin;
+            PlayerHooks.PlayerPostLogin += OnLogin;
             PlayerHooks.PlayerLogout += OnLogout;
         }
 
@@ -45,7 +45,7 @@ namespace CDPlugin
             {
                 ServerApi.Hooks.NetGetData.Deregister(this, NetHooks_GetData);
                 ServerApi.Hooks.GameInitialize.Deregister(this, OnInit);
-                PlayerHooks.PlayerPreLogin -= OnLogin;
+                PlayerHooks.PlayerPostLogin -= OnLogin;
                 PlayerHooks.PlayerLogout -= OnLogout;
             }
             base.Dispose(disposing);
@@ -55,7 +55,7 @@ namespace CDPlugin
         {
             DB.Connect();
         }
-        public void OnLogin(PlayerPreLoginEventArgs args)
+        public void OnLogin(PlayerPostLoginEventArgs args)
         {
             DB.Login(args.Player.User.ID);
         }
@@ -64,7 +64,7 @@ namespace CDPlugin
         {
             DB.Logout(args.Player.User.ID, args.Player.TPlayer.position.X, args.Player.TPlayer.position.Y);
         }
-        
+
         private void NetHooks_GetData(GetDataEventArgs args)
         {
             if (args.MsgID == PacketTypes.PlayerDeathV2)
@@ -86,7 +86,7 @@ namespace CDPlugin
                     InventoryDrop(Main.player[playerId], Main.player[playerId].inventory, 0, InventoryDDR, InventoryDR);
                     ArmDrop(Main.player[playerId], Main.player[playerId].armor, 59, ArmDDR, ArmDR);
                     MiscItemDrop(Main.player[playerId], Main.player[playerId].miscEquips, 89, MEDDR, MEDR);
-                    
+
                 }
             }
             if (args.MsgID == PacketTypes.PlayerUpdate)
@@ -94,16 +94,20 @@ namespace CDPlugin
                 var playerId = args.Msg.whoAmI;
                 var tPlayer = TShock.Players[playerId];
                 var p = Main.player[playerId];
-                if (!TShock.ServerSideCharacterConfig.Enabled && tPlayer.User == null)
+                if (!TShock.ServerSideCharacterConfig.Enabled || tPlayer.User == null)
                 {
                     return;
                 }
-                var ppos = DB.GetPos(tPlayer.User.ID);
-                if (ppos.indatabase)
+                else
                 {
-                    if (tPlayer.Teleport(ppos.x, ppos.y))
+
+                    var ppos = DB.GetPos(tPlayer.User.ID);
+                    if (ppos.indatabase)
                     {
-                        DB.UpdateStatus(false, tPlayer.User.ID);
+                        if (tPlayer.Teleport(ppos.x, ppos.y))
+                        {
+                            DB.UpdateStatus(false, tPlayer.User.ID);
+                        }
                     }
                 }
             }
@@ -113,7 +117,7 @@ namespace CDPlugin
         {
             for (var i = 0; i < inv.Length; i++)
             {
-                if (Main.rand.Next(100) <= droprate || i < 10)
+                if ((Main.rand.Next(100) <= droprate && i > 9))
                 {
                     if (inv[i].Name != "")
                     {
@@ -167,7 +171,7 @@ namespace CDPlugin
             i.active = false;
             NetMessage.SendData(5, -1, -1, null, p.whoAmI, itemID, i.prefix);
         }
-        
+
         public enum ItemSlot
         {
             InvRow1Slot1, InvRow1Slot2, InvRow1Slot3, InvRow1Slot4, InvRow1Slot5, InvRow1Slot6, InvRow1Slot7, InvRow1Slot8, InvRow1Slot9, InvRow1Slot10,
