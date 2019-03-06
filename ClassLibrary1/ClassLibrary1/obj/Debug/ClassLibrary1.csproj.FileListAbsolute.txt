@@ -28,3 +28,9 @@ C:\Users\Admin-ZM\source\repos\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\Cl
 C:\Users\Admin-ZM\source\repos\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.dll
 C:\Users\Admin-ZM\source\repos\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
 C:\Users\Admin-ZM\source\repos\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csprojAssemblyReference.cache
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CoreCompileInputs.cache
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CopyComplete
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+E:\source\CDPlugin\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.pdb

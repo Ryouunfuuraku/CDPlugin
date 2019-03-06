@@ -35,8 +35,8 @@ namespace CDPlugin
         {
             ServerApi.Hooks.NetGetData.Register(this, NetHooks_GetData);
             ServerApi.Hooks.GameInitialize.Register(this, OnInit);
-            ServerApi.Hooks.ServerJoin.Register(this, OnLogin);
-            ServerApi.Hooks.ServerLeave.Register(this, OnLogout);
+            PlayerHooks.PlayerPreLogin += OnLogin;
+            PlayerHooks.PlayerLogout += OnLogout;
         }
 
         protected override void Dispose(bool disposing)
@@ -45,8 +45,8 @@ namespace CDPlugin
             {
                 ServerApi.Hooks.NetGetData.Deregister(this, NetHooks_GetData);
                 ServerApi.Hooks.GameInitialize.Deregister(this, OnInit);
-                ServerApi.Hooks.ServerJoin.Deregister(this, OnLogin);
-                ServerApi.Hooks.ServerLeave.Deregister(this, OnLogout);
+                PlayerHooks.PlayerPreLogin -= OnLogin;
+                PlayerHooks.PlayerLogout -= OnLogout;
             }
             base.Dispose(disposing);
         }
@@ -55,25 +55,18 @@ namespace CDPlugin
         {
             DB.Connect();
         }
-
-        private void OnLogin(JoinEventArgs args)
+        public void OnLogin(PlayerPreLoginEventArgs args)
         {
-            float x;
-            float y;
-            PlayerPos  pp = DB.GetPos(Players[args.Who]);
-            x = pp.x;
-            y = pp.y;
-            Players[args.Who].Teleport(x,y);
+            DB.Login(args.Player.User.ID);
         }
 
-        private void OnLogout(LeaveEventArgs args)
+        public void OnLogout(PlayerLogoutEventArgs args)
         {
-            DB.SetPos(Players[args.Who]);
+            DB.Logout(args.Player.User.ID, args.Player.TPlayer.position.X, args.Player.TPlayer.position.Y);
         }
         
         private void NetHooks_GetData(GetDataEventArgs args)
         {
-
             if (args.MsgID == PacketTypes.PlayerDeathV2)
             {
                 args.Msg.reader.BaseStream.Position = args.Index;
@@ -94,6 +87,20 @@ namespace CDPlugin
                     ArmDrop(Main.player[playerId], Main.player[playerId].armor, 59, ArmDDR, ArmDR);
                     MiscItemDrop(Main.player[playerId], Main.player[playerId].miscEquips, 89, MEDDR, MEDR);
                     
+                }
+            }
+            if (args.MsgID == PacketTypes.PlayerUpdate)
+            {
+                var playerId = args.Msg.whoAmI;
+                var tPlayer = TShock.Players[playerId];
+                var p = Main.player[playerId];
+                var ppos = DB.GetPos(tPlayer.User.ID);
+                if (ppos.indatabase)
+                {
+                    if (tPlayer.Teleport(ppos.x, ppos.y))
+                    {
+                        DB.UpdateStatus(false, tPlayer.User.ID);
+                    }
                 }
             }
         }

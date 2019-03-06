@@ -4,116 +4,90 @@ using System.Data;
 using System.IO;
 using TShockAPI;
 using TShockAPI.DB;
-
+using System;
+using System.Collections.Generic;
 namespace CDPlugin
 {
     public static class DB
     {
-        private static IDbConnection db;
+        public static SqlTableEditor SQLEditor;
+        public static SqlTableCreator SQLWriter;
 
         public static void Connect()
         {
-            switch (TShock.Config.StorageType.ToLower())
-            {
-                case "mysql":
-                    string[] dbHost = TShock.Config.MySqlHost.Split(':');
-                    db = new MySqlConnection()
-                    {
-                        ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4};",
-                            dbHost[0],
-                            dbHost.Length == 1 ? "3306" : dbHost[1],
-                            TShock.Config.MySqlDbName,
-                            TShock.Config.MySqlUsername,
-                            TShock.Config.MySqlPassword)
-
-                    };
-                    break;
-
-                case "sqlite":
-                    string sql = Path.Combine(TShock.SavePath, "CDPlugin.sqlite");
-                    db = new SqliteConnection(string.Format("uri=file://{0},Version=3", sql));
-                    break;
-
-            }
-
-            SqlTableCreator sqlcreator = new SqlTableCreator(db, db.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
-
-            sqlcreator.EnsureTableStructure(new SqlTable("cdplugin",
-                new SqlColumn("userid", MySqlDbType.Int32) { Primary = true, Unique = true, Length = 6 },
+            SQLEditor = new SqlTableEditor(TShock.DB,TShock.DB.GetSqlType()== SqlType.Sqlite?(IQueryBuilder)new SqliteQueryCreator():new MysqlQueryCreator());
+            SQLWriter = new SqlTableCreator(TShock.DB,TShock.DB.GetSqlType() == SqlType.Sqlite?(IQueryBuilder)new SqliteQueryCreator():new MysqlQueryCreator());
+            var table = new SqlTable("CDPlugin",
+                new SqlColumn("userid", MySqlDbType.Int32) {Primary = true, Unique = true, Length = 6 },
                 new SqlColumn("x", MySqlDbType.Float) { },
-                new SqlColumn("y", MySqlDbType.Float) { }));
+                new SqlColumn("y", MySqlDbType.Float) { },
+                new SqlColumn("logout", MySqlDbType.Int32){ Length = 1 }
+            );
+            SQLWriter.EnsureTableStructure(table);
+        }
+
+        public static void Login(int _userid)
+        {
+            List<SqlValue> where = new List<SqlValue>();
+            where.Add(new SqlValue("userid", _userid));
+            var sql = SQLEditor.ReadColumn("CDPlugin", "userid", where);
+            if (sql.Count > 0)
+            {
+                UpdateStatus(true, _userid);
+            }
+            else
+                AddPos(new PlayerPos(_userid, 0, 0));
+        }
+        public static void Logout(int _userid, float _x, float _y)
+        {
+            PlayerPos retPos = new PlayerPos(_userid, _x, _y);
+            UpdatePos(retPos, true);
         }
 
         public static void AddPos(PlayerPos info)
         {
-            string query = $"INSERT INTO `cdplugin` (`userid`, `x`, `y`) VALUES ({info.userid}, '{info.x}', '{info.y}');";
-            int result = db.Query(query);
-            if (result != 1)
-            {
-                TShock.Log.ConsoleError("Error adding entry to database for user: " + info.userid);
-            }
+            List<SqlValue> list = new List<SqlValue>();
+            list.Add(new SqlValue("userid", info.userid));
+            list.Add(new SqlValue("x", info.x));
+            list.Add(new SqlValue("y", info.y));
+            list.Add(new SqlValue("logout", Convert.ToInt32(false)));
+            SQLEditor.InsertValues("CDPlugin", list);
         }
-
-        public static void UpdatePos(PlayerPos info)
+        public static void UpdateStatus(bool info, int _userid)
         {
-            string query = $"UPDATE `cdplugin` SET `x` = '{info.x}', `y` = '{info.y}' WHERE `userid` = {info.userid};";
-            int result = db.Query(query);
-            if (result != 1)
-            {
-                TShock.Log.ConsoleError("Error updating entry in database for user: " + info.userid);
-            }
+            List<SqlValue> values = new List<SqlValue>();
+            List<SqlValue> where = new List<SqlValue>();
+            where.Add(new SqlValue("userid", _userid));
+            values.Add(new SqlValue("logout", Convert.ToInt32(info)));
+            SQLEditor.UpdateValues("CDPlugin", values, where);
+        }
+        public static void UpdatePos(PlayerPos info,bool _logout)
+        {
+            List<SqlValue> values = new List<SqlValue>();
+            List<SqlValue> where = new List<SqlValue>();
+            where.Add(new SqlValue("userid", info.userid));
+            values.Add(new SqlValue("x", info.x));
+            values.Add(new SqlValue("y", info.y));
+            values.Add(new SqlValue("logout", Convert.ToInt32(_logout)));
+            SQLEditor.UpdateValues("CDPlugin", values, where);
         }
 
         public static void DeletePos(int userid)
         {
-            string query = $"DELETE FROM `cdplugin` WHERE `userid` = {userid}";
-            int result = db.Query(query);
-            if (result != 1)
-            {
-                TShock.Log.ConsoleError("Error deleting entry in database for user: " + userid);
-            }
+            List<SqlValue> where = new List<SqlValue>();
+            where.Add(new SqlValue("userid", userid));
+            SQLWriter.DeleteRow("CDPlugin", where);
         }
 
-        public static PlayerPos GetPos(TSPlayer plr)
+        public static PlayerPos GetPos(int _userid)
         {
-            PlayerPos retPos = new PlayerPos(plr, false);
-
-            string query = $"SELECT * FROM `cdplugin` WHERE `userid` = {plr.User.ID};";
-            using (var reader = db.QueryReader(query))
-            {
-                if (reader.Read())
-                {
-                    retPos.indatabase = true;
-                    retPos.x = reader.Get<float>("x");
-                    retPos.y = reader.Get<float>("y");
-                }
-                else
-                {
-                    retPos.indatabase = false;
-                    retPos.x = plr.X;
-                    retPos.y = plr.Y;
-                    AddPos(retPos);
-                }
-            }
+            PlayerPos retPos = new PlayerPos(_userid, 0, 0);
+            List<SqlValue> where = new List<SqlValue>();
+            where.Add(new SqlValue("userid", _userid));
+            retPos.x = Convert.ToSingle (SQLEditor.ReadColumn("CDPlugin", "x", where)[0].ToString());
+            retPos.y = Convert.ToSingle (SQLEditor.ReadColumn("CDPlugin", "y", where)[0].ToString());
+            retPos.indatabase = Convert.ToBoolean( SQLEditor.ReadColumn("CDPlugin", "logout", where)[0]);
             return retPos;
-        }
-
-
-        public static void SetPos(TSPlayer plr)
-        {
-            //Using null to signify that it was not in database
-            PlayerPos newInfo = new PlayerPos(plr, false);
-
-            string query = $"SELECT * FROM `cdplugin` WHERE `userid` = {plr.User.ID};";
-            using (var reader = db.QueryReader(query))
-            {
-                if (reader.Read())
-                {
-                    newInfo.indatabase = true;
-                    newInfo.x = reader.Get<float>("x");
-                    newInfo.y = reader.Get<float>("y");
-                }
-            }
         }
     }
 
@@ -123,12 +97,12 @@ namespace CDPlugin
         public float x;
         public float y;
         public bool indatabase;
-        public PlayerPos(TSPlayer plr, bool _indatabase)
+        public PlayerPos(int _userid ,float _x, float _y)
         {
-            userid = plr.User.ID;
-            x = plr.X;
-            y = plr.Y;
-            indatabase = _indatabase;
+            userid = _userid;
+            x = _x;
+            y = _y;
+            indatabase = false;
         }
     }
 }
